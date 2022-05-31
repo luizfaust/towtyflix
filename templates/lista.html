@@ -14,23 +14,10 @@
     <div style="margin-top: 50px;" class="ui container">
         <h1 class="ui center aligned header">To Do App</h1>
 
-        <form class="ui form" action="/addUser" method="post">
-            <div class="field">
-                <input type="text" name="user" placeholder="Usuario"><br>
-            </div>
-            <div class="field">
-                <input type="password" name="password" placeholder="Senha"><br>
-            </div>
-            <button class="ui blue button" type="submit">Add</button>
-        </form>
-
-        <hr>
-
-        {% for user in user_list %}
         <div class="ui segment">
-            <p class="ui big header">{{user.id }} | {{ user.user }} | {{ user.password }}</p>
+            <p class="ui big header">{{user_id }}</p>
         </div>
-        {% endfor %}
+
     </div>
 </body>
 

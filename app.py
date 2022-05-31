@@ -27,17 +27,24 @@ def get_db():
 @app.get("/")
 def home(request: Request, db: Session = Depends(get_db)):
     todos = db.query(models.Todo).all()
-    return templates.TemplateResponse("base.html",
-                                      {"request": request, "todo_list": todos})
+    users = db.query(models.User).all()
+    return templates.TemplateResponse("base.html", {"request": request, "todo_list": todos, "user_list": users})
 
-@app.post("/add")
-def add(request: Request, title: str = Form(...), db: Session = Depends(get_db)):
-    new_todo = models.Todo(title=title)
-    db.add(new_todo)
+
+@app.post("/addUser")
+def add(request: Request, user: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    new_User = models.User(user=user, password=hash(password), role="User")
+    db.add(new_User)
     db.commit()
+    user = db.query(models.User).filter(models.User.user == user).first()
+    id = int(user.id)
+    print(type(id))
+    return RedirectResponse(url="/lista/{id}", status_code=status.HTTP_303_SEE_OTHER)
 
-    url = app.url_path_for("home")
-    return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
+
+@app.get("/lista/{user_id}")
+def home(request: Request, user_id: int, db: Session = Depends(get_db)):
+    return templates.TemplateResponse("lista.html", {"request": request, "user_id": user_id})
 
 
 @app.get("/update/{todo_id}")
