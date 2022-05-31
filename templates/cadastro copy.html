@@ -12,28 +12,18 @@
 
 <body>
     <div style="margin-top: 50px;" class="ui container">
-        <h1 class="ui center aligned header">Logar</h1>
+        <h1 class="ui center aligned header">Cadastro</h1>
 
-        <form class="ui form" action="/logar" method="post">
+        <form class="ui form" action="/addUser" method="post">
             <div class="field">
                 <input type="text" name="user" placeholder="Usuario"><br>
             </div>
             <div class="field">
                 <input type="password" name="password" placeholder="Senha"><br>
             </div>
-            <button class="ui blue button" type="submit">logar</button>
+            <button class="ui blue button" type="submit">Add</button>
         </form>
-        <hr>
-        
-        <a href="/cadastro">Nao tem cadastro? Cadastre-se</a>
 
-        <hr>
-
-        {% for user in user_list %}
-        <div class="ui segment">
-            <p class="ui big header">{{user.id }} | {{ user.user }} | {{ user.password }}</p>
-        </div>
-        {% endfor %}
     </div>
 </body>
 
