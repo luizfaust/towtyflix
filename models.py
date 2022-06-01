@@ -1,3 +1,4 @@
+from enum import unique
 from sqlalchemy import Boolean, Column, Integer, String
 
 from database import Base
@@ -5,7 +6,7 @@ from database import Base
 class User(Base):
     __tablename__ = "Users"
     id = Column(Integer, primary_key=True, index=True)
-    user = Column(String)
+    user = Column(String, unique=True)
     password = Column(String)
     role = Column(String)
 

@@ -12,12 +12,47 @@
 
 <body>
     <div style="margin-top: 50px;" class="ui container">
-        <h1 class="ui center aligned header">Futura lista de Filmes</h1>
+        <h1 class="ui center aligned header">Catalogo de filmes</h1>
 
+        <hr>
         <div class="ui segment">
-            <p class="ui big header">{{user_id }}</p>
+            <h2 class="ui aligned header">Continuar assistindo</h2>
+            {% for movie in movie_list %}
+                {% for relen in relen_list %}
+                    {% if(relen.movieId == movie.id and relen.view == "Metade") %}
+                        <div class="ui segment">
+                            <h2 class="ui big header">{{ movie.name }} | {{ movie.genre }}</h2>
+                            <p class="ui big header">
+                                <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
+                                <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a>
+                            </p>
+                            <p><b>Assistiu:</b> {{relen.view}} - <b>Favorito:</b> {{relen.preference}}   </p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         </div>
-
+        <hr>
+        <div class="ui segment">
+            <h2 class="ui aligned header">Todos os Filmes</h2>
+            {% for movie in movie_list %}
+                <div class="ui segment">
+                    <h2 class="ui big header">{{ movie.name }} | {{ movie.genre }}</h2>
+                    <p class="ui big header">
+                        <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
+                        <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a> - 
+                        <a href="/assistirmetade/{{user_id}}/{{movie.id}}">Assistir pela metade</a>
+                    </p>
+                    <p>
+                        {% for relen in relen_list %}
+                            {% if(relen.movieId == movie.id) %}
+                                <b>Assistiu:</b> {{relen.view}} - <b>Favorito:</b> {{relen.preference}}
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </body>
 
