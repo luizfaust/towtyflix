@@ -34,6 +34,11 @@ def home(request: Request, db: Session = Depends(get_db)):
 def home(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("cadastro.html", {"request": request})
 
+
+@app.get("/catalogo")
+def home(request: Request, db: Session = Depends(get_db)):
+    return templates.TemplateResponse("filmes.html", {"request": request})
+
 @app.get("/cadastroFilme")
 def home(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("cadastroFilme.html", {"request": request})
@@ -60,4 +65,5 @@ def add(request: Request, name: str = Form(...), tags: str = Form(...), genre: s
     new_Movie = models.Movie(name=name, genre=genre, tags=tags)
     db.add(new_Movie)
     db.commit()
-    return RedirectResponse(url="/cadastroFilme", status_code=status.HTTP_303_SEE_OTHER)
+    url = "/cadastroFilme"
+    return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
