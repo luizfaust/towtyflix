@@ -34,15 +34,9 @@ def home(request: Request, db: Session = Depends(get_db)):
 def home(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("cadastro.html", {"request": request})
 
-
-@app.get("/catalogo")
-def home(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse("filmes.html", {"request": request})
-
-@app.get("/cadastroFilme")
-def home(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse("cadastroFilme.html", {"request": request})
-
+@app.get("/catalogo/{user_id}")
+def home(request: Request, user_id: int, db: Session = Depends(get_db)):
+    return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id})
 
 @app.post("/addUser")
 def add(request: Request, user: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
@@ -53,17 +47,18 @@ def add(request: Request, user: str = Form(...), password: str = Form(...), db: 
     url = "/filmes/" + str(new_User.id)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
-
-@app.get("/filmes/{user_id}")
-def home(request: Request, user_id: int, db: Session = Depends(get_db)):
-    return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id})
-
+@app.get("/cadastroFilme")
+def home(request: Request, db: Session = Depends(get_db)):
+    return templates.TemplateResponse("cadastroFilme.html", {"request": request})
 
 @app.post("/addMovie")
-def add(request: Request, name: str = Form(...), tags: str = Form(...), genre: str = Form(...),  db: Session = Depends(get_db)):
+def add(request: Request, name: str = Form("name"), tags: str = Form(...), genre: str = Form(...),  db: Session = Depends(get_db)):
     #new_Movie = models.Movie(name="Titanic", genre="Romance", tags="Romance, Titanic")
+    print(name)
     new_Movie = models.Movie(name=name, genre=genre, tags=tags)
     db.add(new_Movie)
     db.commit()
     url = "/cadastroFilme"
+    #url = app.url_path_for("home")
+    #return RedirectResponse(url=url)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)

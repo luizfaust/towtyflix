@@ -13,8 +13,8 @@ class Movie(Base):
     __tablename__ = "Movies"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    genre = Column(String)
     tags = Column(String)
+    genre = Column(String)
 
 class Relationship(Base):
     __tablename__ = "Relationships"
