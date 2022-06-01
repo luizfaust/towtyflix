@@ -31,11 +31,11 @@ def home(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/cadastro")
-def home(request: Request, db: Session = Depends(get_db)):
+def register(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("cadastro.html", {"request": request})
 
 @app.get("/catalogo/{user_id}")
-def home(request: Request, user_id: int, db: Session = Depends(get_db)):
+def movieCatalog(request: Request, user_id: int, db: Session = Depends(get_db)):
     return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id})
 
 @app.post("/addUser")
@@ -44,7 +44,7 @@ def add(request: Request, user: str = Form(...), password: str = Form(...), db: 
     db.add(new_User)
     print(db)
     db.commit()
-    url = "/filmes/" + str(new_User.id)
+    url = "catalogo/" + str(new_User.id)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/cadastroFilme")
@@ -52,13 +52,10 @@ def home(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("cadastroFilme.html", {"request": request})
 
 @app.post("/addMovie")
-def add(request: Request, name: str = Form("name"), tags: str = Form(...), genre: str = Form(...),  db: Session = Depends(get_db)):
-    #new_Movie = models.Movie(name="Titanic", genre="Romance", tags="Romance, Titanic")
+def add(request: Request, name: str = Form(...), tags: str = Form(...), genre: str = Form(...),  db: Session = Depends(get_db)):
     print(name)
     new_Movie = models.Movie(name=name, genre=genre, tags=tags)
     db.add(new_Movie)
     db.commit()
     url = "/cadastroFilme"
-    #url = app.url_path_for("home")
-    #return RedirectResponse(url=url)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
