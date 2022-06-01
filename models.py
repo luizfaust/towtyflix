@@ -17,13 +17,19 @@ class Movie(Base):
     tags = Column(String)
     genre = Column(String)
 
-class Relationship(Base):
-    __tablename__ = "Relationships"
+class Views(Base):
+    __tablename__ = "Views"
     id = Column(Integer, primary_key=True, index=True)
     userId = Column(Integer)
     movieId = Column(Integer)
     view = Column(String)
-    preference = Column(String) 
+
+class Favorites(Base):
+    __tablename__ = "Favorites"
+    id = Column(Integer, primary_key=True, index=True)
+    userId = Column(Integer)
+    movieId = Column(Integer)
+    favorite = Column(Boolean) 
 
 # OLD
 class Todo(Base):

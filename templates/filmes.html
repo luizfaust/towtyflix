@@ -13,6 +13,23 @@
 <body>
     <div style="margin-top: 50px;" class="ui container">
         <h1 class="ui center aligned header">Catalogo de filmes</h1>
+        
+        <div class="ui segment">
+            <h2 class="ui aligned header">Recomendaçoes</h2>
+            {% for rec in rec_list %}
+                <div class="ui segment">
+                    <p>
+                        <span class="ui big header">{{ rec.nota }} - {{ rec.name }}</span>
+                        <br>
+                        {{ rec.genre }}
+                        <br>
+                        <a href="/favoritar/{{user_id}}/{{rec.id}}">Favoritar</a> - 
+                        <a href="/assistir/{{user_id}}/{{rec.id}}">Assistir</a> - 
+                        <a href="/assistirmetade/{{user_id}}/{{rec.id}}">Metade</a>
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
 
         <hr>
         <div class="ui segment">
@@ -26,7 +43,7 @@
                                 <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
                                 <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a>
                             </p>
-                            <p><b>Assistiu:</b> {{relen.view}} - <b>Favorito:</b> {{relen.preference}}   </p>
+                            <p><b>Assistiu:</b> {{relen.view}}</p>
                         </div>
                     {% endif %}
                 {% endfor %}
@@ -37,13 +54,10 @@
             <h2 class="ui aligned header">Todos os Filmes</h2>
             {% for movie in movie_list %}
                 <div class="ui segment">
-                    <h2 class="ui big header">{{ movie.name }} | {{ movie.genre }}</h2>
-                    <p class="ui big header">
+                    <p class="ui big header">{{ movie.name }} | {{ movie.genre }}
                         <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
                         <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a> - 
                         <a href="/assistirmetade/{{user_id}}/{{movie.id}}">Assistir pela metade</a>
-                    </p>
-                    <p>
                         {% for relen in relen_list %}
                             {% if(relen.movieId == movie.id) %}
                                 <b>Assistiu:</b> {{relen.view}} - <b>Favorito:</b> {{relen.preference}}
