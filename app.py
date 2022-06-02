@@ -7,8 +7,6 @@ from starlette.templating import Jinja2Templates
 
 from sqlalchemy.orm import Session
 
-import random
-
 import models
 from database import SessionLocal, engine
 
@@ -34,23 +32,24 @@ def home(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("base.html", {"request": request, "user_list": users})
 
 
-@app.get("/cadastro")
-def register(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse("cadastro.html", {"request": request})
+@app.get("/cadastro/{msguser}")
+def register(request: Request, msguser: str, db: Session = Depends(get_db)):
+    msg = ""
+    if not msguser == "novousuario" : msg = msguser
+    return templates.TemplateResponse("cadastro.html", {"request": request, "msg": msg})
 
-@app.get("/catalogo/{user_id}")
-def movieCatalog(request: Request, user_id: int, db: Session = Depends(get_db)):
+@app.get("/catalogo/{user_id}/{rec_items}")
+def movieCatalog(request: Request, user_id: int, rec_items: int, db: Session = Depends(get_db)):
     movies = db.query(models.Movie).all()
     view = db.query(models.Views).filter(models.Views.userId == user_id).all()
     favs = db.query(models.Favorites).filter(models.Favorites.userId == user_id).all()
-    rec = gerarRec(movies, view, favs, 10)
+    rec = gerarRec(movies, view, favs, rec_items)
     catalogo = gerarCatalogo(movies, view, favs)
     return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id, "movie_list": catalogo, "rec_list": rec})
 
 @app.post("/login")
 def logar(request: Request, user: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.user == user, models.User.password == password).first()
-    print(hash(password))
     try:
         url = "catalogo/" + str(user.id)
     except:
@@ -61,9 +60,13 @@ def logar(request: Request, user: str = Form(...), password: str = Form(...), db
 @app.post("/addUser")
 def add(request: Request, user: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     new_User = models.User(user=user, password=password, role="User")
-    db.add(new_User)
-    db.commit()
-    url = "catalogo/" + str(new_User.id)
+    try:
+        db.add(new_User)
+        db.commit()
+        url = "catalogo/"+str(new_User.id)+"/12"
+    except:
+        print("User ja existi")
+        url = "/cadastro/UsuarioExistente"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/favoritar/{user_id}/{movie_id}")
@@ -79,7 +82,7 @@ def movieFav(request: Request, user_id: int, movie_id: int, db: Session = Depend
         new_r = models.Favorites(userId=user_id, movieId=movie_id, favorite=True)
         db.add(new_r)
     db.commit()
-    url="/catalogo/"+str(user_id)
+    url="/catalogo/"+str(user_id)+"/12"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/assistir/{user_id}/{movie_id}")
@@ -87,7 +90,7 @@ def movieView(request: Request, user_id: int, movie_id: int, db: Session = Depen
     new_r = models.Views(userId=user_id, movieId=movie_id, view="Assistiu")
     db.add(new_r)
     db.commit()
-    url="/catalogo/"+str(user_id)
+    url="/catalogo/"+str(user_id)+"/12"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/assistirmetade/{user_id}/{movie_id}")
@@ -100,7 +103,7 @@ def movieViewHalf(request: Request, user_id: int, movie_id: int, db: Session = D
         new_r = models.Views(userId=user_id, movieId=movie_id, view="Metade")
         db.add(new_r)
     db.commit()
-    url="/catalogo/"+str(user_id)
+    url="/catalogo/"+str(user_id)+"/12"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/cadastroFilme")
@@ -171,11 +174,8 @@ def gerarRec(movies, views, favs, qr):
                 m.nota = rank[x];
                 rec.append(m)
                 c += 1
-            if c > qr:
+            if c >= qr:
                 break;
-
-    print(tags)
-
     return rec
 
 def gerarCatalogo(movies, views, favs):
