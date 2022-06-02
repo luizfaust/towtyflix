@@ -30,41 +30,61 @@
                 </div>
             {% endfor %}
         </div>
-
         <hr>
         <div class="ui segment">
             <h2 class="ui aligned header">Continuar assistindo</h2>
             {% for movie in movie_list %}
-                {% for relen in relen_list %}
-                    {% if(relen.movieId == movie.id and relen.view == "Metade") %}
-                        <div class="ui segment">
-                            <h2 class="ui big header">{{ movie.name }} | {{ movie.genre }}</h2>
-                            <p class="ui big header">
-                                <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
-                                <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a>
-                            </p>
-                            <p><b>Assistiu:</b> {{relen.view}}</p>
-                        </div>
-                    {% endif %}
-                {% endfor %}
+                {% if(movie.metade == True) %}
+                    <div class="ui segment">
+                        <p>
+                            <span class="ui big header">{{ movie.name }}</span>
+                            <br>
+                            {{ movie.genre }}
+                            <br>
+                            <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
+                            <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a> - 
+                            <a href="/assistirmetade/{{user_id}}/{{movie.id}}">Metade</a>
+                        </p>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
         <hr>
         <div class="ui segment">
-            <h2 class="ui aligned header">Todos os Filmes</h2>
+            <h2 class="ui aligned header">Não assistidos</h2>
             {% for movie in movie_list %}
-                <div class="ui segment">
-                    <p class="ui big header">{{ movie.name }} | {{ movie.genre }}
-                        <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
-                        <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a> - 
-                        <a href="/assistirmetade/{{user_id}}/{{movie.id}}">Assistir pela metade</a>
-                        {% for relen in relen_list %}
-                            {% if(relen.movieId == movie.id) %}
-                                <b>Assistiu:</b> {{relen.view}} - <b>Favorito:</b> {{relen.preference}}
-                            {% endif %}
-                        {% endfor %}
-                    </p>
-                </div>
+                {% if(movie.metade == False and movie.assistiu == False) %}
+                    <div class="ui segment">
+                        <p>
+                            <span class="ui big header">{{ movie.name }}</span>
+                            <br>
+                            {{ movie.genre }}
+                            <br>
+                            <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
+                            <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a> - 
+                            <a href="/assistirmetade/{{user_id}}/{{movie.id}}">Metade</a>
+                        </p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <hr>
+        <div class="ui segment">
+            <h2 class="ui aligned header">Assistidos</h2>
+            {% for movie in movie_list %}
+                {% if(movie.assistiu == True) %}
+                    <div class="ui segment">
+                        <p>
+                            <span class="ui big header">{{ movie.name }}</span>
+                            <br>
+                            {{ movie.genre }}
+                            <br>
+                            <a href="/favoritar/{{user_id}}/{{movie.id}}">Favoritar</a> - 
+                            <a href="/assistir/{{user_id}}/{{movie.id}}">Assistir</a> - 
+                            <a href="/assistirmetade/{{user_id}}/{{movie.id}}">Metade</a>
+                        </p>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

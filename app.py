@@ -44,7 +44,8 @@ def movieCatalog(request: Request, user_id: int, db: Session = Depends(get_db)):
     view = db.query(models.Views).filter(models.Views.userId == user_id).all()
     favs = db.query(models.Favorites).filter(models.Favorites.userId == user_id).all()
     rec = gerarRec(movies, view, favs, 10)
-    return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id, "movie_list": movies, "relen_list": view, "rec_list": rec})
+    catalogo = gerarCatalogo(movies, view, favs)
+    return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id, "movie_list": catalogo, "rec_list": rec})
 
 @app.post("/login")
 def logar(request: Request, user: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
@@ -176,3 +177,17 @@ def gerarRec(movies, views, favs, qr):
     print(tags)
 
     return rec
+
+def gerarCatalogo(movies, views, favs):
+    for m in movies:
+        m.assistiu = False
+        m.metade = False
+        m.favorito = False
+        for v in views:
+            if m.id == v.movieId:
+                if v.view == "Assistiu" : m.assistiu = True
+                if v.view == "Metade" : m.metade = True
+        for f in favs:
+            if m.id == f.movieId:
+                if f.favorite : m.favorito = True
+    return movies
