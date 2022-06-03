@@ -27,16 +27,16 @@
             <div class="col-6">
                 <p class="m-0 text-end">
                     Mostrar: 
-                    <a href="/catalogo/{{user_id}}/12">12</a> |
-                    <a href="/catalogo/{{user_id}}/24">24</a> |
-                    <a href="/catalogo/{{user_id}}/36">36</a> |
-                    <a href="/catalogo/{{user_id}}/48">48</a>
+                    <a href="/catalogo/{{user_id}}?r=12">12</a> |
+                    <a href="/catalogo/{{user_id}}?r=24">24</a> |
+                    <a href="/catalogo/{{user_id}}?r=36">36</a> |
+                    <a href="/catalogo/{{user_id}}?r=48">48</a>
                 </p>
             </div>
         </div>
         <div class="row">
-            <div id="carouselRec" class="carousel slide carousel-dark" data-bs-ride="carousel" style="padding: 0 70px ;">
-                <div class="carousel-inner">
+            <div id="carouselRec" class="carousel slide carousel-dark" data-bs-ride="carousel">
+                <div class="carousel-inner"  style="padding: 0 70px;"">
                     {% for m in rec_list %}
                         {% if (loop.index - 1) % 4 == 0 %}
                             {{'<div class="carousel-item'|safe}}{% if loop.index == 1 %}{{' active'|safe}}{% endif %}{{'"><div class="row">'|safe}}
@@ -49,13 +49,7 @@
                                     <div class="card-body">
                                         <p class="m-0">{{ m.genre }}</p>
                                         <p class="m-0">
-                                            <a href="/favoritar/{{user_id}}/{{m.id}}">
-                                                {% if not m.favorito %}
-                                                    {{ "Favoritar" }}
-                                                {% else %}
-                                                    {{ "Desfavoritar" }}
-                                                {% endif %}
-                                            </a> - 
+                                            <a href="/favoritar/{{user_id}}/{{m.id}}">{% if not m.favorito %}{{ "Favoritar" }}{% else %}{{ "Desfavoritar" }}{% endif %}</a> - 
                                             <a href="/assistir/{{user_id}}/{{m.id}}">Assistir</a> - 
                                             <a href="/assistirmetade/{{user_id}}/{{m.id}}">Um pouco</a>
                                         </p>
@@ -67,11 +61,11 @@
                 </div>{# style="width: 70px;"#}
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselRec" data-bs-slide="prev" style="width: 70px;">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
+                    <span class="visually-hidden">{{ "<" }}</span>
                 </button>
                 <button class="carousel-control-next" type="button" data-bs-target="#carouselRec" data-bs-slide="next" style="width: 70px;">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
+                    <span class="visually-hidden">{ ">" }}</span>
                 </button>
             </div>
         </div>
@@ -106,9 +100,21 @@
         <hr>
         <div class="row">
             <div class="col-12">
+                <form class="form-inline my-4 p-0">
+                    <div class="row">
+                        <div class="col-4">
+                            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="s">
+                        </div>
+                        <div class="col-3">
+                            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12">
                 <h2 class="ui aligned header">Não assistidos</h2>
             </div>
-            {% for movie in movie_list %}
+            {% for movie in movie_search %}
                 {% if(movie.metade == False and movie.assistiu == False) %}
                 <div class="col-12 col-md-6 col-lg-3"">
                     <div class="card mb-3">

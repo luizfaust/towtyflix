@@ -40,15 +40,19 @@ def register(request: Request, msguser: str, db: Session = Depends(get_db)):
     if not msguser == "novousuario" : msg = msguser
     return templates.TemplateResponse("cadastro.html", {"request": request, "msg": msg})
 
-@app.get("/catalogo/{user_id}/{rec_items}")
-def movieCatalog(request: Request, user_id: int, rec_items: int, db: Session = Depends(get_db)):
+@app.get("/catalogo/{user_id}")
+def movieCatalog(request: Request, user_id: int, r: int = 12, s: str = "", db: Session = Depends(get_db)):
+    if s == "":
+        moviesSearch = db.query(models.Movie).all()
+    else:
+        moviesSearch = db.query(models.Movie).filter(models.Movie.name.contains(s)).all()
     movies = db.query(models.Movie).all()
     random.shuffle(movies)
     view = db.query(models.Views).filter(models.Views.userId == user_id).all()
     favs = db.query(models.Favorites).filter(models.Favorites.userId == user_id).all()
-    rec = gerarRec(movies, view, favs, rec_items)
+    rec = gerarRec(movies, view, favs, r)
     catalogo = gerarCatalogo(movies, view, favs)
-    return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id, "movie_list": catalogo, "rec_list": rec})
+    return templates.TemplateResponse("filmes.html", {"request": request, "user_id": user_id, "movie_search": moviesSearch, "movie_list": catalogo, "rec_list": rec})
 
 @app.post("/login")
 def logar(request: Request, user: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
@@ -66,7 +70,7 @@ def add(request: Request, user: str = Form(...), password: str = Form(...), db: 
     try:
         db.add(new_User)
         db.commit()
-        url = "catalogo/"+str(new_User.id)+"/12"
+        url = "catalogo/"+str(new_User.id)
     except:
         url = "/cadastro/UsuarioExistente"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
@@ -79,7 +83,7 @@ def movieFav(request: Request, user_id: int, movie_id: int, db: Session = Depend
     else:
         setattr(relen, "favorite", not relen.favorite)
     db.commit()
-    url="/catalogo/"+str(user_id)+"/12"
+    url="/catalogo/"+str(user_id)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/assistir/{user_id}/{movie_id}")
@@ -87,7 +91,7 @@ def movieView(request: Request, user_id: int, movie_id: int, db: Session = Depen
     new_r = models.Views(userId=user_id, movieId=movie_id, view="Assistiu")
     db.add(new_r)
     db.commit()
-    url="/catalogo/"+str(user_id)+"/12"
+    url="/catalogo/"+str(user_id)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/assistirmetade/{user_id}/{movie_id}")
@@ -99,7 +103,7 @@ def movieViewHalf(request: Request, user_id: int, movie_id: int, db: Session = D
         new_r = models.Views(userId=user_id, movieId=movie_id, view="Metade")
         db.add(new_r)
         db.commit()
-    url="/catalogo/"+str(user_id)+"/12"
+    url="/catalogo/"+str(user_id)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/terminar/{user_id}/{movie_id}")
@@ -112,7 +116,7 @@ def movieViewHalf(request: Request, user_id: int, movie_id: int, db: Session = D
         new_r = models.Views(userId=user_id, movieId=movie_id, view="Metade")
         db.add(new_r)
     db.commit()
-    url="/catalogo/"+str(user_id)+"/12"
+    url="/catalogo/"+str(user_id)
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/cadastroFilme")
