@@ -31,7 +31,7 @@
 
         {% for user in user_list %}
         <div class="ui segment">
-            <p class="ui big header">{{ user.id }} | {{ user.user }} | {{ user.password }}</p>
+            <p class="ui big header">{{ user.user }} | {{ user.password }} - <a href="/delete/{{user.id}}">deletar</a></p>
         </div>
         {% endfor %}
     </div>

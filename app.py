@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 import models
 from database import SessionLocal, engine
 
+import random
+
 models.Base.metadata.create_all(bind=engine)
 
 templates = Jinja2Templates(directory="templates")
@@ -41,6 +43,7 @@ def register(request: Request, msguser: str, db: Session = Depends(get_db)):
 @app.get("/catalogo/{user_id}/{rec_items}")
 def movieCatalog(request: Request, user_id: int, rec_items: int, db: Session = Depends(get_db)):
     movies = db.query(models.Movie).all()
+    random.shuffle(movies)
     view = db.query(models.Views).filter(models.Views.userId == user_id).all()
     favs = db.query(models.Favorites).filter(models.Favorites.userId == user_id).all()
     rec = gerarRec(movies, view, favs, rec_items)
@@ -65,22 +68,16 @@ def add(request: Request, user: str = Form(...), password: str = Form(...), db: 
         db.commit()
         url = "catalogo/"+str(new_User.id)+"/12"
     except:
-        print("User ja existi")
         url = "/cadastro/UsuarioExistente"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/favoritar/{user_id}/{movie_id}")
 def movieFav(request: Request, user_id: int, movie_id: int, db: Session = Depends(get_db)):
     relen = db.query(models.Favorites).filter(models.Favorites.userId == user_id, models.Favorites.movieId == movie_id).first()
-    try:
-        if(not relen.favorite):
-            setattr(relen, "favorite", True)
-        else:
-            setattr(relen, "favorite", False)
-        db.add(relen)
-    except:
-        new_r = models.Favorites(userId=user_id, movieId=movie_id, favorite=True)
-        db.add(new_r)
+    if relen == None:
+        db.add(models.Favorites(userId=user_id, movieId=movie_id, favorite=True))
+    else:
+        setattr(relen, "favorite", not relen.favorite)
     db.commit()
     url="/catalogo/"+str(user_id)+"/12"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
@@ -95,9 +92,21 @@ def movieView(request: Request, user_id: int, movie_id: int, db: Session = Depen
 
 @app.get("/assistirmetade/{user_id}/{movie_id}")
 def movieViewHalf(request: Request, user_id: int, movie_id: int, db: Session = Depends(get_db)):
-    relen = db.query(models.Views).filter(models.Views.userId == user_id, models.Views.movieId == movie_id).first()
+    relen = db.query(models.Views).filter(models.Views.userId == user_id, models.Views.movieId == movie_id, models.Views.view == "Metade").first()
     try:
         setattr(relen, "view", "Metade")
+    except:
+        new_r = models.Views(userId=user_id, movieId=movie_id, view="Metade")
+        db.add(new_r)
+        db.commit()
+    url="/catalogo/"+str(user_id)+"/12"
+    return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
+
+@app.get("/terminar/{user_id}/{movie_id}")
+def movieViewHalf(request: Request, user_id: int, movie_id: int, db: Session = Depends(get_db)):
+    relen = db.query(models.Views).filter(models.Views.userId == user_id, models.Views.movieId == movie_id, models.Views.view == "Metade").first()
+    try:
+        setattr(relen, "view", "Assistiu")
         db.add(relen)
     except:
         new_r = models.Views(userId=user_id, movieId=movie_id, view="Metade")
@@ -117,6 +126,17 @@ def add(request: Request, name: str = Form(...), tags: str = Form(...), genre: s
     db.commit()
     url = "/cadastroFilme"
     return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
+
+@app.get("/delete/{userId}")
+def delete(request: Request, userId: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == userId).first()
+    db.delete(user)
+    views = db.query(models.Views).filter(models.Views.userId == userId).all()
+    for v in views: db.delete(v)
+    db.commit()
+
+    url = app.url_path_for("home")
+    return RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)
 
 def gerarRec(movies, views, favs, qr):
     # Pontuacao
@@ -164,10 +184,9 @@ def gerarRec(movies, views, favs, qr):
         if v.movieId in filmes : 
             del filmes[v.movieId]
 
-    # rank = dict(sorted(filmes.items(), key=lambda item: item[1],reverse=True)) 
     rank = dict(sorted(filmes.items(), key=lambda item: item[1], reverse=True))
     
-    c = 0;
+    c = 1;
     for x in rank:
         for m in movies:
             if m.id == x :

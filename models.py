@@ -30,10 +30,3 @@ class Favorites(Base):
     userId = Column(Integer)
     movieId = Column(Integer)
     favorite = Column(Boolean) 
-
-# OLD
-class Todo(Base):
-    __tablename__ = "todos"
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
-    complete = Column(Boolean, default=False)

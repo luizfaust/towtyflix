@@ -1,1 +1,1 @@
-DELETE FROM Movies WHERE id=1;
+DELETE FROM Movies WHERE id=34;
